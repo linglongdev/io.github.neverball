@@ -1,0 +1,93 @@
+version: "1"
+
+package:
+  id: io.github.neverball
+  name: neverball
+  version: 1.5.3.1
+  kind: app
+  description: |
+    Tilt the floor to roll a ball through an obstacle course before time runs out.
+
+base: org.deepin.foundation/23.0.0
+runtime: org.deepin.Runtime/23.0.1
+
+command:
+  - /opt/apps/io.github.neverball/files/bin/neverball
+
+sources:
+  - kind: git
+    url: https://github.com/Neverball/neverball.git
+    version: master
+    commit: 806c1926eafc7983aff5f09deb63ddebd4725956
+
+  - kind: git
+    url: https://github.com/libsdl-org/SDL.git
+    version: master
+    commit: 155c3bb0a33a842d23f3dafc9bf541f0973cd686
+
+  - kind: git
+    url: https://github.com/libsdl-org/SDL_ttf.git
+    version: master
+    commit: 7185085beb39b9e8b17d18685a2a58a14b7c53ef
+
+  - kind: git
+    url: https://github.com/xiph/vorbis.git
+    version: master
+    commit: 84c023699cdf023a32fa4ded32019f194afcdad0
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/c/curl/libcurl4_8.5.0-2_amd64.deb
+    digest: 6e3d5ad17b738939a392e5f7eb00c1f129529834ca62b053e677ad03e6a1e12c
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/c/curl/libcurl4-openssl-dev_8.5.0-2_amd64.deb
+    digest: 273ce1a75b0e8b1e31f0ce3d8441f9c42cfa9729c55ebef528bc2157dc3d7a02
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/libo/libogg/libogg0_1.3.5-3_amd64.deb
+    digest: 6de429751d24e788ebc92ecb3e4c24c49f6aca67e0a9584f999d387bc4cefd7b
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/libo/libogg/libogg-dev_1.3.5-3_amd64.deb
+    digest: 735b0184953b5309ac74fe506504c677612bcbd07b0fafece3c12041eef113b0
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/libs/libssh2/libssh2-1_1.10.0-2_amd64.deb
+    digest: 01518dc04074da312967d3de567241403a8e4a28bcb932cd0331edc96cbe2220
+
+  - kind: file
+    url: https://community-packages.deepin.com/beige/pool/main/libs/libssh2/libssh2-1-dev_1.10.0-2_amd64.deb
+    digest: 987127a9f93631d498189142aed5467b449d79248081f67395d44dc29818cea0
+
+build: |
+  echo "" > $PREFIX/packages.list
+  bash ./install_dep linglong/sources "$PREFIX"
+  cd /project/linglong/sources/SDL.git/
+  cmake -Bbuild \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+        -DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib/${TRIPLET}
+  
+  cmake --build build
+  cmake --build build --target install
+  
+  cd /project/linglong/sources/SDL_ttf.git/
+  cmake -Bbuild \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+        -DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib/${TRIPLET}
+  
+  cmake --build build
+  cmake --build build --target install
+  
+  cd /project/linglong/sources/vorbis.git/
+  cmake -Bbuild \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+        -DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib/${TRIPLET} \
+        -DBUILD_SHARED_LIBS=ON
+  
+  cmake --build build
+  cmake --build build --target install
+  
+  cd /project/linglong/sources/neverball.git/
+  git apply /project/patches/0001-fix-command.patch
+  make 
+  make install PREFIX=${PREFIX}

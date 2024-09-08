@@ -1,0 +1,59 @@
+From 783e65ab063d0fe2a5218cf6f4a321c48d3d657d Mon Sep 17 00:00:00 2001
+From: Shenyufan <751890223@qq.com>
+Date: Mon, 12 Aug 2024 21:13:32 +0800
+Subject: [PATCH] fix-command
+
+---
+ Makefile | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index c293b7f..0c552b8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -31,6 +31,7 @@ USERDIR   := .neverball
+ DATADIR   := ./data
+ LOCALEDIR := ./locale
+ 
++
+ ifeq ($(PLATFORM),mingw)
+ 	USERDIR := Neverball
+ endif
+@@ -66,7 +67,7 @@ ifeq ($(ENABLE_TILT),wii)
+ 	# libwiimote headers make heavy use of the "unnamed fields" GCC
+ 	# extension.
+ 
+-	ALL_CFLAGS := -Wall -Wshadow -std=c99 -pedantic -fms-extensions $(CFLAGS)
++	ALL_CFLAGS := -Wall -Wshadow -std=c99 -pedantic -fms-extensions $(CFLAGS) 
+ else
+ 	ALL_CFLAGS := -Wall -Wshadow -std=c99 -pedantic $(CFLAGS)
+ endif
+@@ -114,7 +115,7 @@ endif
+ ENABLE_FETCH := curl
+ 
+ ifeq ($(ENABLE_FETCH),curl)
+-	ALL_CPPFLAGS += $(shell curl-config --cflags) -DENABLE_FETCH=1
++	ALL_CPPFLAGS += $(shell curl-config --cflags ) -I$(PREFIX)/include/x86_64-linux-gnu/  -DENABLE_FETCH=1
+ else
+ 	ALL_CPPFLAGS += -DENABLE_FETCH=0
+ endif
+@@ -525,6 +526,16 @@ clean : clean-src
+ 	$(RM) $(DESKTOPS)
+ 	$(MAKE) -C po clean
+ 
++install: 
++	cp mapc $(PREFIX)/bin/mapc
++	cp neverball $(PREFIX)/bin/neverball
++	cp neverputt $(PREFIX)/bin/neverputt
++	cp -r data $(PREFIX)/bin/data
++	mkdir $(PREFIX)/share/applications/
++	cp dist/neverball.desktop $(PREFIX)/share/applications/neverball.desktop 
++	mkdir -p $(PREFIX)/share/icons/hicolor/scalable/apps/
++	cp dist/modern-icons/svg/neverball-modern.svg $(PREFIX)/share/icons/hicolor/scalable/apps/neverball.svg
++
+ #------------------------------------------------------------------------------
+ 
+ .PHONY : all sols locales desktops clean-src clean
+-- 
+2.43.4
+
